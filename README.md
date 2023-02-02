@@ -23,8 +23,7 @@
 
 1. Fork 本仓库到您的个人目录下
 2. 将成果文件添加到您的个人仓库。关于如何将文件添加到 git 仓库请参考 [git 基本操作教程](https://git-scm.com/book/zh/v2/Git-%E5%9F%BA%E7%A1%80-%E8%8E%B7%E5%8F%96-Git-%E4%BB%93%E5%BA%93)
-3. 在您的个人仓库的"Pull Requests"页面发起一个 PR，合入的目标为 secretflow/interconnection-bfia 的 main 分支。关于 Github PR 创建流程的更详细步骤参考 [Github 官方文档](
-   https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
+3. 在您的个人仓库的"Pull Requests"页面发起一个 PR，合入的目标为 secretflow/interconnection-bfia 的 main 分支。关于 Github PR 创建流程的更详细步骤参考 [Github 官方文档](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
 4. 银联和蚂蚁的同事 review PR，如果 PR 需要修改，直接讲更新内容 push 到个人仓库，PR 页面会自动更新
 5. PR 通过以后，合并入本仓库
 
@@ -41,6 +40,5 @@ interconnection-bfia
         ├── api         # 接口文档
         │   └── some.pb
         └── examples    # 接口使用示例（可选）
-
 ```
 
