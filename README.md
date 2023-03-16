@@ -1,6 +1,16 @@
 # interconnection-bfia
 
-本仓库用于展示北京金融科技产业联盟（Beijing FinTech Industry Alliance）隐私计算互联互通课题组研究成果，成果归属金科联盟数据专委会。
+本仓库用于展示北京金融科技产业联盟（Beijing FinTech Industry Alliance）数据专委会隐私计算互联互通课题组研究成果，成果归属金科联盟数据专委会。
+
+## 互联互通架构
+
+### 互通视角
+
+![arch-flow](.doc-img/arch-flow.jpg)
+
+### 模块视角
+
+![arch-module](.doc-img/arch-module.jpg)
 
 
 ## 成果形式
@@ -10,7 +20,7 @@
 其中接口文档格式可以是：
 
  - Restful 接口推荐使用 swagger
- - RPC 接口推荐使用 protobuf 文档描述
+ - RPC 接口推荐使用 protobuf 文档描述（需转成 Swagger UI 形式展示）
  - 简单、少量的 C/C++ 函数接口推荐直接用 .h 文件描述，并要求每一个函数的功能、入参、出参都有详细的注释
  - 其它接口请根据接口类型选择合适的表达形式，包括且不限于 Markdown 等等。
 
@@ -33,11 +43,11 @@
 ## 仓库组织形式
 
 ```
-interconnection-bfia
+InterOp
 ├── LICENSE
 ├── README.md
 └── bfia
-    └── 子课题名称
+    └── 子课题名称（或模块名称）
         ├── README.md   # 包括但不限于：子课题介绍；课题牵头/成员单位的介绍、联系式、版权声明等；Contributor 账号等
         ├── api         # 接口文档
         │   └── some.pb
