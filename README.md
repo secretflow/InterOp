@@ -6,11 +6,15 @@
 
 ### 互通视角
 
-![arch-flow](.doc-img/arch-flow.jpg)
+<div align="center">
+    <img src=".doc-img/arch-flow.jpg">
+</div>
 
 ### 模块视角
 
-![arch-module](.doc-img/arch-module.jpg)
+<div align="center">
+    <img src=".doc-img/arch-module.jpg">
+</div>
 
 
 ## 成果形式
