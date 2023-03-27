@@ -13,7 +13,7 @@
 ### 模块视角
 
 <div align="center">
-    <img src=".doc-img/arch-module.png">
+    <img src=".doc-img/arch-module.jpg">
 </div>
 
 
