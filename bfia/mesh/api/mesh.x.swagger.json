@@ -18,7 +18,7 @@
   "paths": {
     "/org/ppc/ptp/invoke": {
       "post": {
-        "summary": "外部通信非流式传输接口",
+        "summary": "节点间通信非流式传输接口",
         "operationId": "invoke",
         "responses": {
           "200": {
@@ -32,7 +32,7 @@
     },
     "/org/ppc/ptp/transport": {
       "post": {
-        "summary": "外部通信流式传输接口",
+        "summary": "节点间通信流式传输接口",
         "operationId": "transport",
         "responses": {
           "200": {

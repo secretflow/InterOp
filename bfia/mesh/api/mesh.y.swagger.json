@@ -18,7 +18,7 @@
   "paths": {
     "/org/ppc/ptp/chan/push": {
       "post": {
-        "summary": " 数据发送接口",
+        "summary": " 容器调用通信模块发送数据",
         "operationId": "push",
         "responses": {
           "200": {
@@ -26,30 +26,13 @@
           }
         },
         "tags": [
-          "PrivateTransferProtocol"
-        ]
-      }
-    },
-    "/org/ppc/ptp/chan/peek": {
-      "post": {
-        "summary": "非阻塞接收数据接口",
-        "operationId": "peek",
-        "responses": {
-          "200": {
-            "description": "A successful response."
-          },
-          "default": {
-            "description": "An unexpected error response."
-          }
-        },
-        "tags": [
-          "PrivateTransferProtocol"
+          "PrivateTransferTransport"
         ]
       }
     },
     "/org/ppc/ptp/chan/pop": {
       "post": {
-        "summary": "阻塞接收数据接口",
+        "summary": "容器调用通信模块接收数据",
         "operationId": "pop",
         "responses": {
           "200": {
@@ -60,13 +43,30 @@
           }
         },
         "tags": [
-          "PrivateTransferProtocol"
+          "PrivateTransferTransport"
+        ]
+      }
+    },
+    "/org/ppc/ptp/chan/peek": {
+      "post": {
+        "summary": "容器调用通信模块快速获取数据",
+        "operationId": "peek",
+        "responses": {
+          "200": {
+            "description": "A successful response."
+          },
+          "default": {
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "PrivateTransferTransport"
         ]
       }
     },
     "/org/ppc/ptp/chan/release": {
       "post": {
-        "summary": "资源释放接口",
+        "summary": "容器调用通信模块会话释放",
         "operationId": "release",
         "responses": {
           "200": {
@@ -77,7 +77,7 @@
           }
         },
         "tags": [
-          "PrivateTransferProtocol"
+          "PrivateTransferTransport"
         ]
       }
     }
