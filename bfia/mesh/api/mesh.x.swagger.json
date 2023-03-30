@@ -1,0 +1,51 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "mesh.x.proto",
+    "version": "0.0.1"
+  },
+  "tags": [
+    {
+      "name": "PrivateTransferProtocol"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/org/ppc/ptp/invoke": {
+      "post": {
+        "summary": "外部通信非流式传输接口",
+        "operationId": "invoke",
+        "responses": {
+          "200": {
+            "description": "A successful response."
+          }
+        },
+        "tags": [
+          "PrivateTransferProtocol"
+        ]
+      }
+    },
+    "/org/ppc/ptp/transport": {
+      "post": {
+        "summary": "外部通信流式传输接口",
+        "operationId": "transport",
+        "responses": {
+          "200": {
+            "description": "A successful response."
+          },
+          "default": {
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "PrivateTransferProtocol"
+        ]
+      }
+    }
+  }
+}

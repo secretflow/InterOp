@@ -1,0 +1,85 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "mesh.y.proto",
+    "version": "0.0.1"
+  },
+  "tags": [
+    {
+      "name": "PrivateTransferTransport"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/org/ppc/ptp/chan/push": {
+      "post": {
+        "summary": " 数据发送接口",
+        "operationId": "push",
+        "responses": {
+          "200": {
+            "description": "A successful response."
+          }
+        },
+        "tags": [
+          "PrivateTransferProtocol"
+        ]
+      }
+    },
+    "/org/ppc/ptp/chan/peek": {
+      "post": {
+        "summary": "非阻塞接收数据接口",
+        "operationId": "peek",
+        "responses": {
+          "200": {
+            "description": "A successful response."
+          },
+          "default": {
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "PrivateTransferProtocol"
+        ]
+      }
+    },
+    "/org/ppc/ptp/chan/pop": {
+      "post": {
+        "summary": "阻塞接收数据接口",
+        "operationId": "pop",
+        "responses": {
+          "200": {
+            "description": "A successful response."
+          },
+          "default": {
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "PrivateTransferProtocol"
+        ]
+      }
+    },
+    "/org/ppc/ptp/chan/release": {
+      "post": {
+        "summary": "资源释放接口",
+        "operationId": "release",
+        "responses": {
+          "200": {
+            "description": "A successful response."
+          },
+          "default": {
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "PrivateTransferProtocol"
+        ]
+      }
+    }
+  }
+}
