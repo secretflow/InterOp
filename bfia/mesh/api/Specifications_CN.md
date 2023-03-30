@@ -305,6 +305,16 @@ class Transport(ABC, Generic[T]):
     @mpi("mesh.chan.open")
     def open(self, session_id: str, metadata: Dict[str, str]) -> "Session":
         """
+        Metadata 包含如下KEY，这些值会在Session句柄中持久，在传输时候使用
+        
+        mesh.mpc.address:            required 本方通信组件地址
+        x-ptp-tech-provider-code:    required 厂商编码
+        x-ptp-trace-id:              required 链路追踪ID
+        x-ptp-token                  required 认证令牌
+        x-ptp-session-id             required 通信会话号，全网唯一
+        x-ptp-target-node-id         required 接收端节点编号，全网唯一
+        x-ptp-target-inst-id         optional 接收端机构编号，全网唯一
+        
         Open a channel session.
         :param session_id:  node id or inst id
         :param metadata channel metadata
