@@ -30,14 +30,14 @@
 
 ## 内容
 
-* <a href="#1">1 节点间通信接口</a>
-    * <a href="#1.1">1.1 报文规范</a>
-    * <a href="#1.2">1.2 接口规范</a>
+* <a href="#1">1 通信SDK编程接口</a>
+    * <a href="#1.1">1.1 数据流编程接口</a>
 * <a href="#2">2 容器调用通信模块接口</a>
     * <a href="#2.1">2.1 报文规范</a>
     * <a href="#2.2">2.2 接口规范</a>
-* <a href="#3">3 传输SPI接口</a>
-    * <a href="#3.1">3.1 数据流SPI</a>
+* <a href="#3">3 节点间通信接口</a>
+    * <a href="#3.1">3.1 报文规范</a>
+    * <a href="#3.2">3.2 接口规范</a>
 * <a href="#4">4 标准实现库</a>
     * <a href="#4.1">4.1 运行时通信组件</a>
     * <a href="#4.2">4.1 Go</a>
@@ -51,85 +51,128 @@
     * <a href="#5.3">5.3 Swagger格式声明</a>
     * <a href="#5.4">5.4 示例程序</a>
 
-### <a id="1">1 节点间通信接口</a>
+### <a id="1">1 通信SDK编程接口</a>
 
-外部通信协议描述隐私计算互联互通中跨节点间的通信的报文和接口规范，隐私计算互联互通场景下，互联互通的协议不同技术服务提供商会有自身的选择偏好，
-本规范不限制各厂商使用的通信协议和业务报文序列化协议，但约定通信的报文规范和在各通信协议下的接口规范。
+### <a id="1.1">1.1 数据流编程接口</a>
 
-#### <a id="1.1">1.1 报文规范</a>
+数据流SPI为数据流传输提供SPI标准接口，为SDK集成部分，通过统一SPI接口，可以无缝移植到不同通信组件。
+MESH默认提供两个版本实现，一个基于GRPC客户端全双工模式，一个基于分布式高速管道组实现。
 
-互联互通外部传输协议报文包含报头和报文两部分，报头主要提供统一的身份路由，报文使用二进制透传。
+```python
 
-互联互通使用HTTP（HTTP/0.9 HTTP/1.1 HTTP/2）作为底层通信协议，复用HTTP报头传输互联互通协议报头
+from abc import abstractmethod, ABC
+from typing import Generic, Dict
 
-* 报头
+from mesh.macro import spi, mpi, T
 
-```shell
-x-ptp-version:               required 协议版本
-x-ptp-tech-provider-code:    required 厂商编码
-x-ptp-trace-id:              required 链路追踪ID
-x-ptp-token                  required 认证令牌
-x-ptp-session-id             required 通信会话号，全网唯一
-x-ptp-source-node-id         required 发送端节点编号，全网唯一
-x-ptp-target-node-id         required 接收端节点编号，全网唯一
-x-ptp-source-inst-id         optional 发送端机构编号，全网唯一
-x-ptp-target-inst-id         optional 接收端机构编号，全网唯一
-```
 
-* 报文
+@spi("mesh")
+class Transport(ABC, Generic[T]):
+    """
+    Private compute data channel in async and blocking mode.
+    """
 
-```shell
-互联互通下节点间通信报文透传二进制报文，复用HTTP协议Body传输。
-```
+    MESH = "mesh"
+    GRPC = "grpc"
 
-#### <a id="1.2">1.2 接口规范</a>
+    @abstractmethod
+    @mpi("mesh.chan.open")
+    def open(self, session_id: str, metadata: Dict[str, str]) -> "Session":
+        """
+        Metadata 包含如下KEY，这些值会在Session句柄中持久，在传输时候使用
+        
+        mesh.mpc.address:            required 本方通信组件地址
+        x-ptp-tech-provider-code:    required 厂商编码
+        x-ptp-trace-id:              required 链路追踪ID
+        x-ptp-token                  required 认证令牌
+        x-ptp-session-id             required 通信会话号，全网唯一
+        x-ptp-target-node-id         required 接收端节点编号，全网唯一
+        x-ptp-target-inst-id         optional 接收端机构编号，全网唯一
+        
+        Open a channel session.
+        :param session_id:  node id or inst id
+        :param metadata channel metadata
+        :return:
+        """
+        pass
 
-互联互通节点间提供两个传输接口规范，一个非流式接口，针对命令式调用场景；一个流式接口，针对大数据/小报文连续传输场景。
+    @abstractmethod
+    @mpi("mesh.chan.close")
+    def close(self, timeout: int):
+        """
+        Close the channel.
+        :return:
+        """
+        pass
 
-##### 1.2.1 非流式接口规范
+    @abstractmethod
+    @mpi("mesh.chan.roundtrip")
+    def roundtrip(self, payload: bytes, metadata: Dict[str, str]) -> bytes:
+        """
+        Roundtrip with the channel.
+        :param payload:
+        :param metadata:
+        :return:
+        """
+        pass
 
-针对命令式调用场景
 
-```shell
-HTTP/1.1 POST /org/ppc/ptp/invoke
-请求头:
-x-ptp-version:               required 协议版本
-x-ptp-tech-provider-code:    required 厂商编码
-x-ptp-trace-id:              required 链路追踪ID
-x-ptp-token                  required 认证令牌
-x-ptp-session-id             required 通信会话号，全网唯一
-x-ptp-source-node-id         required 发送端节点编号，全网唯一
-x-ptp-target-node-id         required 接收端节点编号，全网唯一
-x-ptp-source-inst-id         optional 发送端机构编号，全网唯一
-x-ptp-target-inst-id         optional 接收端机构编号，全网唯一
-请求体:
-payload                      透传二进制报文，不做特殊处理
+@spi("mesh")
+class Session(ABC, Generic[T]):
+    """
+    Remote queue in async and blocking mode.
+    """
 
-响应体:
-payload                      透传二进制报文，不做特殊处理
-```
+    @abstractmethod
+    @mpi("mesh.chan.peek")
+    def peek(self, topic: str = "") -> bytes:
+        """
+        Retrieves, but does not remove, the head of this queue,
+        or returns None if this queue is empty.
+        :param topic: message topic
+        :return: the head of this queue, or None if this queue is empty
+        :return:
+        """
+        pass
 
-##### 1.2.2 流式接口规范
+    @abstractmethod
+    @mpi(name="mesh.chan.pop", timeout=120 * 1000)
+    def pop(self, timeout: int, topic: str = "") -> bytes:
+        """
+        Retrieves and removes the head of this queue,
+        or returns None if this queue is empty.
+        :param timeout: timeout in mills.
+        :param topic: message topic
+        :return: the head of this queue, or None if this queue is empty
+        """
+        pass
 
-针对大数据/小报文连续传输场景
+    @abstractmethod
+    @mpi("mesh.chan.push")
+    def push(self, payload: bytes, metadata: Dict[str, str], topic: str = ""):
+        """
+        Inserts the specified element into this queue if it is possible to do
+        so immediately without violating capacity restrictions.
+        When using a capacity-restricted queue, this method is generally
+        preferable to add, which can fail to insert an element only
+        by throwing an exception.
+        :param payload: message payload
+        :param metadata: Message metadata
+        :param topic: message topic
+        :return:
+        """
+        pass
 
-```shell
-HTTP/1.1 POST /org/ppc/ptp/transport
-请求头:
-x-ptp-version:               required 协议版本
-x-ptp-tech-provider-code:    required 厂商编码
-x-ptp-trace-id:              required 链路追踪ID
-x-ptp-token                  required 认证令牌
-x-ptp-session-id             required 通信会话号，全网唯一
-x-ptp-source-node-id         required 发送端节点编号，全网唯一
-x-ptp-target-node-id         required 接收端节点编号，全网唯一
-x-ptp-source-inst-id         optional 发送端机构编号，全网唯一
-x-ptp-target-inst-id         optional 接收端机构编号，全网唯一
-请求体:
-payload                      透传二进制报文，不做特殊处理
-
-响应体:
-payload                      透传二进制报文，不做特殊处理
+    @abstractmethod
+    @mpi("mesh.chan.release")
+    def release(self, timeout: int, topic: str = ""):
+        """
+        Close the channel session.
+        :param timeout:
+        :param topic: message topic
+        :return:
+        """
+        pass
 ```
 
 ### <a id="2">2 容器调用通信模块接口</a>
@@ -277,128 +320,85 @@ x-ptp-target-inst-id         optional 接收端机构编号，全网唯一
 | code    | string | E0000000000 | true | 状态码，E0000000000表示成功，其余均为失败 |
 | message | string | 成功          | true | 状态说明                       |
 
-### <a id="3">3 传输SPI接口</a>
+### <a id="3">3 节点间通信接口</a>
 
-### <a id="3.1">3.1 数据流SPI</a>
+外部通信协议描述隐私计算互联互通中跨节点间的通信的报文和接口规范，隐私计算互联互通场景下，互联互通的协议不同技术服务提供商会有自身的选择偏好，
+本规范不限制各厂商使用的通信协议和业务报文序列化协议，但约定通信的报文规范和在各通信协议下的接口规范。
 
-数据流SPI为数据流传输提供SPI标准接口，为SDK集成部分，通过统一SPI接口，可以无缝移植到不同通信组件。
-MESH默认提供两个版本实现，一个基于GRPC客户端全双工模式，一个基于分布式高速管道组实现。
+#### <a id="3.1">3.1 报文规范</a>
 
-```python
+互联互通外部传输协议报文包含报头和报文两部分，报头主要提供统一的身份路由，报文使用二进制透传。
 
-from abc import abstractmethod, ABC
-from typing import Generic, Dict
+互联互通使用HTTP（HTTP/0.9 HTTP/1.1 HTTP/2）作为底层通信协议，复用HTTP报头传输互联互通协议报头
 
-from mesh.macro import spi, mpi, T
+* 报头
 
+```shell
+x-ptp-version:               required 协议版本
+x-ptp-tech-provider-code:    required 厂商编码
+x-ptp-trace-id:              required 链路追踪ID
+x-ptp-token                  required 认证令牌
+x-ptp-session-id             required 通信会话号，全网唯一
+x-ptp-source-node-id         required 发送端节点编号，全网唯一
+x-ptp-target-node-id         required 接收端节点编号，全网唯一
+x-ptp-source-inst-id         optional 发送端机构编号，全网唯一
+x-ptp-target-inst-id         optional 接收端机构编号，全网唯一
+```
 
-@spi("mesh")
-class Transport(ABC, Generic[T]):
-    """
-    Private compute data channel in async and blocking mode.
-    """
+* 报文
 
-    MESH = "mesh"
-    GRPC = "grpc"
+```shell
+互联互通下节点间通信报文透传二进制报文，复用HTTP协议Body传输。
+```
 
-    @abstractmethod
-    @mpi("mesh.chan.open")
-    def open(self, session_id: str, metadata: Dict[str, str]) -> "Session":
-        """
-        Metadata 包含如下KEY，这些值会在Session句柄中持久，在传输时候使用
-        
-        mesh.mpc.address:            required 本方通信组件地址
-        x-ptp-tech-provider-code:    required 厂商编码
-        x-ptp-trace-id:              required 链路追踪ID
-        x-ptp-token                  required 认证令牌
-        x-ptp-session-id             required 通信会话号，全网唯一
-        x-ptp-target-node-id         required 接收端节点编号，全网唯一
-        x-ptp-target-inst-id         optional 接收端机构编号，全网唯一
-        
-        Open a channel session.
-        :param session_id:  node id or inst id
-        :param metadata channel metadata
-        :return:
-        """
-        pass
+#### <a id="3.2">3.2 接口规范</a>
 
-    @abstractmethod
-    @mpi("mesh.chan.close")
-    def close(self, timeout: int):
-        """
-        Close the channel.
-        :return:
-        """
-        pass
+节点间通信提供两个传输接口，非流式调用，针对单次调用场景；流式接口，针对大数据/小报文连续传输场景。
 
-    @abstractmethod
-    @mpi("mesh.chan.roundtrip")
-    def roundtrip(self, payload: bytes, metadata: Dict[str, str]) -> bytes:
-        """
-        Roundtrip with the channel.
-        :param payload:
-        :param metadata:
-        :return:
-        """
-        pass
+##### 3.2.1 非流式接口规范
 
+针对单次调用场景
 
-@spi("mesh")
-class Session(ABC, Generic[T]):
-    """
-    Remote queue in async and blocking mode.
-    """
+```shell
+HTTP/1.1 POST /org/ppc/ptp/invoke
+请求头:
+x-ptp-version:               required 协议版本
+x-ptp-tech-provider-code:    required 厂商编码
+x-ptp-trace-id:              required 链路追踪ID
+x-ptp-token                  required 认证令牌
+x-ptp-session-id             required 通信会话号，全网唯一
+x-ptp-source-node-id         required 发送端节点编号，全网唯一
+x-ptp-target-node-id         required 接收端节点编号，全网唯一
+x-ptp-source-inst-id         optional 发送端机构编号，全网唯一
+x-ptp-target-inst-id         optional 接收端机构编号，全网唯一
+请求体:
+payload                      透传二进制报文，不做特殊处理
 
-    @abstractmethod
-    @mpi("mesh.chan.peek")
-    def peek(self, topic: str = "") -> bytes:
-        """
-        Retrieves, but does not remove, the head of this queue,
-        or returns None if this queue is empty.
-        :param topic: message topic
-        :return: the head of this queue, or None if this queue is empty
-        :return:
-        """
-        pass
+响应体:
+payload                      透传二进制报文，不做特殊处理
+```
 
-    @abstractmethod
-    @mpi(name="mesh.chan.pop", timeout=120 * 1000)
-    def pop(self, timeout: int, topic: str = "") -> bytes:
-        """
-        Retrieves and removes the head of this queue,
-        or returns None if this queue is empty.
-        :param timeout: timeout in mills.
-        :param topic: message topic
-        :return: the head of this queue, or None if this queue is empty
-        """
-        pass
+##### 3.2.2 流式接口规范
 
-    @abstractmethod
-    @mpi("mesh.chan.push")
-    def push(self, payload: bytes, metadata: Dict[str, str], topic: str = ""):
-        """
-        Inserts the specified element into this queue if it is possible to do
-        so immediately without violating capacity restrictions.
-        When using a capacity-restricted queue, this method is generally
-        preferable to add, which can fail to insert an element only
-        by throwing an exception.
-        :param payload: message payload
-        :param metadata: Message metadata
-        :param topic: message topic
-        :return:
-        """
-        pass
+针对大数据/小报文连续传输场景
 
-    @abstractmethod
-    @mpi("mesh.chan.release")
-    def release(self, timeout: int, topic: str = ""):
-        """
-        Close the channel session.
-        :param timeout:
-        :param topic: message topic
-        :return:
-        """
-        pass
+```shell
+HTTP/1.1 POST /org/ppc/ptp/transport
+请求头:
+x-ptp-version:               required 协议版本
+x-ptp-tech-provider-code:    required 厂商编码
+x-ptp-trace-id:              required 链路追踪ID
+x-ptp-token                  required 认证令牌
+x-ptp-session-id             required 通信会话号，全网唯一
+x-ptp-source-node-id         required 发送端节点编号，全网唯一
+x-ptp-target-node-id         required 接收端节点编号，全网唯一
+x-ptp-source-inst-id         optional 发送端机构编号，全网唯一
+x-ptp-target-inst-id         optional 接收端机构编号，全网唯一
+请求体:
+payload                      透传二进制报文，不做特殊处理
+
+响应体:
+payload                      透传二进制报文，不做特殊处理
 ```
 
 ### <a id="4">4 标准实现库</a>
