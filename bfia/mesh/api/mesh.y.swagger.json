@@ -16,7 +16,7 @@
     "application/json"
   ],
   "paths": {
-    "/org/ppc/ptp/chan/push": {
+    "/v1/interconn/chan/push": {
       "post": {
         "summary": " 容器调用通信模块发送数据",
         "operationId": "push",
@@ -30,7 +30,7 @@
         ]
       }
     },
-    "/org/ppc/ptp/chan/pop": {
+    "/v1/interconn/chan/pop": {
       "post": {
         "summary": "容器调用通信模块接收数据",
         "operationId": "pop",
@@ -47,7 +47,7 @@
         ]
       }
     },
-    "/org/ppc/ptp/chan/peek": {
+    "/v1/interconn/chan/peek": {
       "post": {
         "summary": "容器调用通信模块快速获取数据",
         "operationId": "peek",
@@ -64,7 +64,7 @@
         ]
       }
     },
-    "/org/ppc/ptp/chan/release": {
+    "/v1/interconn/chan/release": {
       "post": {
         "summary": "容器调用通信模块会话释放",
         "operationId": "release",

@@ -16,7 +16,7 @@
     "application/json"
   ],
   "paths": {
-    "/org/ppc/ptp/invoke": {
+    "/v1/interconn/chan/invoke": {
       "post": {
         "summary": "节点间通信非流式传输接口",
         "operationId": "invoke",
@@ -30,7 +30,7 @@
         ]
       }
     },
-    "/org/ppc/ptp/transport": {
+    "/v1/interconn/chan/transport": {
       "post": {
         "summary": "节点间通信流式传输接口",
         "operationId": "transport",
