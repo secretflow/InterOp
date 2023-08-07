@@ -1,6 +1,6 @@
 ## Private Transmission Protocol -- PTP/1.0
 
-中文版 [PTP/1.1](Specifications_CN.md)
+中文版 [PTP/1.0](Specifications_CN.md)
 
 ## Introduction
 
