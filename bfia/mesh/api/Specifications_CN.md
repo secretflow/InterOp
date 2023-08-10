@@ -53,6 +53,7 @@
     * <a href="#5.2">5.2 Protobuf格式声明</a>
     * <a href="#5.3">5.3 Swagger格式声明</a>
     * <a href="#5.4">5.4 示例程序</a>
+    * <a href="#5.5">5.5 高级特性</a>
 
 ### <a id="1">1 节点间通信接口</a>
 
@@ -531,3 +532,7 @@ yarn add imesh
 ### <a id="5.4">5.4 示例程序</a>
 
 示例程序 [examples](../examples)
+
+### <a id="5.5">5.5 高级特性</a>
+
+高级特性 [advance](./advance.md)
