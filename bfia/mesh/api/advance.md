@@ -38,15 +38,40 @@
 
 #### 请求体(Request Body)
 
-| 参数名称        | 数据类型   | 默认值 | 不为空  | 描述         |
-|-------------|--------|-----|------|------------|
-| instance_id | string |     | true | 实例ID，具备唯一性 |
-| name        | string |     | true | 实例名称       |
-| kind        | string |     | true | 注册元数据类型    |
-| address     | string |     | true | 服务可访问地址    |
-| timestamp   | string |     | true | 服务注册有效时长   |
-| attachments | Map    |     | true | 补充信息       |
-| content     | Object |     | true | 注册内容       |
+| 参数名称        | 数据类型               | 默认值       | 不为空  | 描述         |
+|-------------|--------------------|-----------|------|------------|
+| instance_id | string             |           | true | 实例ID，具备唯一性 |
+| name        | string             |           | true | 实例名称，应用名   |
+| kind        | string             | "complex" | true | 注册元数据类型    |
+| address     | string             |           | true | 服务可访问地址    |
+| timestamp   | string             |           | true | 服务注册有效时长   |
+| attachments | Map<string,string> |           | true | 补充信息       |
+| content     | Metadata           |           | true | 注册内容       |
+
+Metadata
+
+```json
+{
+  "services": [
+    {
+      "urn": "/a/b/c",
+      "kind": "Restful",
+      "proto": "http",
+      "codec": "json",
+      "address": "IP:PORT",
+      "lang": "Python3"
+    },
+    {
+      "urn": "/a/b/c",
+      "kind": "Restful",
+      "proto": "grpc",
+      "codec": "json",
+      "address": "IP:PORT",
+      "lang": "Python3"
+    }
+  ]
+}
+```
 
 #### 响应体
 
