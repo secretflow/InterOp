@@ -16,6 +16,8 @@
 syntax = "proto3";
 
 package org.ppc.ptp;
+option go_package = "github.com/be-io/mesh/ptp";
+option java_package = "io.bfia.ptp";
 
 // PTP Private transfer protocol
 // 通用报头名称编码，4层无Header以二进制填充到报头，7层以Header传输
@@ -47,9 +49,10 @@ message ReleaseInbound {
 }
 
 message TransportOutbound {
-  bytes payload = 1;                  // 二进制报文
-  string code = 2;                    // 状态码
-  string message = 3;                 // 状态说明
+  map<string, string>  metadata = 1;  // 可选，预留扩展，Dict，序列化协议由通信层统一实现
+  bytes payload = 2;                  // 二进制报文
+  string code = 3;                    // 状态码
+  string message = 4;                 // 状态说明
 }
 
 service PrivateTransferTransport {
