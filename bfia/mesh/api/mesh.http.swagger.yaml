@@ -1,0 +1,138 @@
+openapi: 3.0.1
+info:
+  title: bfia-chan-api
+  description: 传输接口规范
+  contact:
+    name: 樊昕晔, 王超, 曾成
+    email: fanxinye@ebchinatech.com, congying.wang@trustbe.cn, coyzeng@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: http://127.0.0.1:7304
+    description: Server URL
+paths:
+  /v1/interconn/chan/push:
+    post:
+      summary: 发送信息接口
+      operationId: push
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushParam'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponseObject'
+  /v1/interconn/chan/pop:
+    get:
+      summary: 获取信息接口
+      operationId: pop
+      parameters:
+        - name: param
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/PopParam'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ContentResponseObject'
+  /v1/interconn/chan/peek:
+    get:
+      summary: 快速查询接口
+      operationId: peek
+      parameters:
+        - name: param
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/TopicParam'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ContentResponseObject'
+components:
+  schemas:
+    PushParam:
+      required:
+        - payload
+      type: object
+      properties:
+        payload:
+          type: array
+          items:
+            type: object
+          description: 消息序列化后的字节数组
+        topic:
+          type: string
+          description: 会话主题，相同信道具有唯一性，用于同一信道的传输隔离
+        metadata:
+          type: object
+          description: 保留参数，用于扩展性
+      description: 发送信息参数
+    PopParam:
+      type: object
+      properties:
+        topic:
+          type: string
+          description: 会话主题，相同信道具有唯一性，用于同一信道的传输隔离
+        timeout:
+          type: integer
+          description: 超时时间，超出指定时间则立即返回
+          example: 120
+      description: 获取信息参数
+    TopicParam:
+      type: object
+      properties:
+        topic:
+          type: string
+          description: 会话主题，相同信道具有唯一性，用于同一信道的传输隔离
+      description: 会话主题参数
+    MessageResponseObject:
+      required:
+        - code
+        - message
+      type: object
+      properties:
+        code:
+          type: string
+          description: 状态码，0表示成功，其余均为失败
+          example: 0
+        message:
+          type: string
+          description: 状态说明
+          example: 成功
+      description: 通用返回报文
+    ContentResponseObject:
+      required:
+        - code
+        - message
+      type: object
+      properties:
+        code:
+          type: string
+          description: 状态码，0表示成功，其余均为失败
+          example: 0
+        message:
+          type: string
+          description: 状态说明
+          example: 成功
+        content:
+          type: array
+          items:
+            type: object
+          description: 消息序列化后的字节数组
+      description: 通用返回报文

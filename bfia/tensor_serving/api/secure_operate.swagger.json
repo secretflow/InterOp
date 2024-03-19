@@ -1,0 +1,442 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "secure_operate.proto",
+    "version": "0.0.1"
+  },
+  "tags": [
+    {
+      "name": "Call"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/secure_operate/v1/execute": {
+      "post": {
+        "summary": "算子服务化接口",
+        "operationId": "Call_execute",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/secure_operateExecuteResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/secure_operateExecuteRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Call"
+        ]
+      }
+    },
+    "/secure_operate/v1/expressions": {
+      "post": {
+        "summary": "算子表达式查询请求",
+        "operationId": "Call_expressions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/secure_operateExpressionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/secure_operateExpressionsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Call"
+        ]
+      }
+    },
+    "/secure_operate/v1/kill": {
+      "post": {
+        "summary": "异步化关闭接口",
+        "operationId": "Call_kill",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/secure_operateExecuteResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/secure_operateTaskTabRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Call"
+        ]
+      }
+    },
+    "/secure_operate/v1/query": {
+      "post": {
+        "summary": "异步化辅助查询接口",
+        "operationId": "Call_query",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/secure_operateExecuteResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/secure_operateTaskTabRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Call"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "secure_operateDataValue": {
+      "type": "object",
+      "properties": {
+        "dataValueTag": {
+          "$ref": "#/definitions/secure_operateDataValueTag",
+          "title": "对算子输入输出一个参数的描述。"
+        },
+        "directValue": {
+          "type": "string",
+          "format": "byte",
+          "title": "直接传值的数据，如果不采集直接传值的方式，则该值为空。\n该字段的处理方式上，是将要传输的数据块的转换为字节数组，再通过Base64编码后得到字符串形式的值，以便支持不同类型的RPC协议。\n数据块转换到字节数组的方式，由DataValueTag 中的dtype和shape确定。"
+        }
+      },
+      "title": "定义算子输入、输出数据对象"
+    },
+    "secure_operateDataValueTag": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "title": "标记数据传输方式，Direct\n标识直接传值，如果希望使用存储引擎来传值，可以使用引擎名称，例如myRedis。"
+        },
+        "name": {
+          "type": "string",
+          "title": "与表达式中的对应参数name 进行关联， 让表达式能够根据name 定位的数据。"
+        },
+        "uri": {
+          "type": "string",
+          "title": "非 Direct 情况下使用，使用存储引擎时， 指定存储引擎的资源定位符"
+        },
+        "key": {
+          "type": "string",
+          "title": "非 Direct 情况下使用，使用存储引擎时，使用的 key 用于数据读写。"
+        },
+        "dtype": {
+          "type": "string",
+          "title": "用于标记输入输出数据的类型，\n在数据传输过程中，数据块以字节数组的形式进行传输，dtype对数据块的格式进行描述，用于将字节数据转换为所需要的数据类型，详细说明，参考dtype枚举说明。"
+        },
+        "shape": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": "用于标记输入输出数据的形状，shape的元素给出了相应维度上的数组尺寸的长度。"
+        },
+        "delete": {
+          "type": "boolean",
+          "title": "默认为true,数据使用完成之后，是否清理。"
+        }
+      },
+      "title": "对一个算子输入、输出参数的描述信息"
+    },
+    "secure_operateExecuteRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "string",
+          "title": "任务ID，用于约定对齐算子、算法上下文的任务编号\n任务id2"
+        },
+        "subTaskId": {
+          "type": "string",
+          "title": "[可选]子任务ID，用于算法对任务进行拆分或并行计算时使用，一般编码方式是taskId+分片后缀。"
+        },
+        "token": {
+          "type": "string",
+          "title": "控制面下发的Token，用于多方之间处理权限核验"
+        },
+        "asyncMode": {
+          "type": "boolean",
+          "title": "[可选]同步或异步模式，默认为false，\nfalse表示同步调用，同步情况下，算子服务需要在计算任务完成之后返回结果，上层算法阻塞等待。\ntrue表示采用异步调用，异步调用情况下，算子服务在受理服务请求后，即可返回，算法层会根据outputMethod约定的存储位置异步获取结果。"
+        },
+        "timeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "[可选]超时时间，单位为秒，默认为0表示不设置超时时间。算子服务如果超时，会强制结束任务，并返回错误。"
+        },
+        "mpcProtocol": {
+          "$ref": "#/definitions/secure_operateMpcProtocol",
+          "title": "多方安全计算协议名称，用于约定算子实现的技术路线。"
+        },
+        "expression": {
+          "type": "string",
+          "title": "用于描述算子计算操作，比如mvm表示矩阵向量乘法，matmul表示矩阵乘法；"
+        },
+        "parties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "参与方ID\n列表，由发起方（或协调方）制定，该列表中个参与方的位置在一次计算任务重，是固定的，各参与方不允许对其调整，因为在计算过程中，算子需要根据该参与方序列保障安全算子协议的协同次序。"
+        },
+        "localPartyId": {
+          "type": "string",
+          "title": "本方的参与方ID"
+        },
+        "resultParties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "结果获取方列表，由发起方（或协调方）进行设置。"
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/secure_operateDataValue"
+          },
+          "title": "数据输入"
+        },
+        "outputMethod": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/secure_operateDataValueTag"
+          },
+          "title": "数据返回方式"
+        },
+        "phases": {
+          "type": "string",
+          "title": "[可选]有状态服务的执行阶段，缺省为无状态服务，可分阶段执行，可指定一个或多个阶段执行，定义为三个阶段，PREPAR（准备阶段）、CALCULATE（计算阶段）,RETRIEVE（恢复阶段）"
+        }
+      },
+      "title": "算子服务请求对象"
+    },
+    "secure_operateExecuteResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "title": "0 正常，否则错误码\n错误码分段:\n100-199表示系统层面的异常，比如算子服务未正常启动；\n200-299表示依赖本地环境所产生的异常，如依赖的节点内存储系统发生异常；\n300-399表示节点间的处理异常，包括节点间通信和节点间的系统异常；\n400-999\n表示内部的逻辑错误，比如参数错误产生的异常，数据格式错误、表达式不存在、算子异常终止等。"
+        },
+        "msg": {
+          "type": "string",
+          "title": "返回信息描述"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/secure_operateDataValue"
+          },
+          "title": "本次计算返回的结果，如果是异步调用模式下，则不立即返回此参数，可通过异步结果查询接口，获取此参数。"
+        }
+      },
+      "title": "算子服务返回对象"
+    },
+    "secure_operateExpressionInfo": {
+      "type": "object",
+      "properties": {
+        "protocolCode": {
+          "type": "string",
+          "title": "协议名称编码"
+        },
+        "providerCode": {
+          "type": "string",
+          "title": "提供厂商名称编码"
+        },
+        "version": {
+          "type": "string",
+          "title": "协议版本号"
+        },
+        "expression": {
+          "type": "string",
+          "title": "表达式名称"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/secure_operateHyperparameter"
+          },
+          "title": "表达式超参"
+        }
+      },
+      "title": "表达式信息"
+    },
+    "secure_operateExpressionsRequest": {
+      "type": "object",
+      "title": "算子表达式查询请求"
+    },
+    "secure_operateExpressionsResponse": {
+      "type": "object",
+      "properties": {
+        "expressions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/secure_operateExpressionInfo"
+          }
+        }
+      },
+      "title": "算子表达式查询回复"
+    },
+    "secure_operateHyperparameter": {
+      "type": "object",
+      "properties": {
+        "paramKey": {
+          "type": "string",
+          "title": "超参的形参编码"
+        },
+        "type": {
+          "type": "string",
+          "title": "参数的数据类型，限于基本数据类型。"
+        },
+        "comment": {
+          "type": "string",
+          "title": "超参说明"
+        },
+        "paramDemo": {
+          "type": "string",
+          "title": "参数实例"
+        }
+      },
+      "title": "算子超参定义对象"
+    },
+    "secure_operateMpcProtocol": {
+      "type": "object",
+      "properties": {
+        "protocolCode": {
+          "type": "string",
+          "title": "协议名称编码"
+        },
+        "providerCode": {
+          "type": "string",
+          "title": "提供厂商名称编码"
+        },
+        "version": {
+          "type": "string",
+          "title": "协议版本号"
+        },
+        "param": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "协议超参"
+        }
+      }
+    },
+    "secure_operateTaskTabRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "string",
+          "title": "任务ID，用于约定对齐算子、算法上下文的任务编号"
+        },
+        "subTaskId": {
+          "type": "string",
+          "title": "[可选]子任务ID，用于算法对任务进行拆分或并行计算时使用，一般编码方式是taskId+分片后缀。"
+        },
+        "localPartyId": {
+          "type": "string",
+          "title": "本方的参与方ID"
+        }
+      },
+      "title": "任务所需要的标识符对象"
+    }
+  }
+}

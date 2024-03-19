@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "examples"
+version = "0.0.1"
+description = "Mesh test example."
+authors = ["coyzeng <coyzeng@gmail.com>"]
+maintainers = ["coyzeng <coyzeng@gmail.com>"]
+packages = [{ include = "src" }]
+homepage = "https://mesh.github.com"
+repository = "https://mesh.github.com"
+documentation = "https://mesh.github.com/docs"
+[tool.poetry.dependencies]
+imesh = "^0.0.11"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "aliyun"
+url = "https://mirrors.aliyun.com/pypi/simple/"
+default = true

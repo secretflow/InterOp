@@ -1,0 +1,159 @@
+syntax = "proto3";
+package secure_operate;
+
+message MpcProtocol {
+  // 协议名称编码
+  string protocolCode = 1;
+  // 提供厂商名称编码
+  string providerCode = 2;
+  // 协议版本号
+  string version = 3;
+  // 协议超参
+  map<string, string> param = 4;
+}
+
+//对一个算子输入、输出参数的描述信息
+message DataValueTag {
+  // 标记数据传输方式，Direct
+  // 标识直接传值，如果希望使用存储引擎来传值，可以使用引擎名称，例如myRedis。
+  string type = 1;
+  // 与表达式中的对应参数name 进行关联， 让表达式能够根据name 定位的数据。
+  string name = 2;
+  // 非 Direct 情况下使用，使用存储引擎时， 指定存储引擎的资源定位符
+  string uri = 3;
+  // 非 Direct 情况下使用，使用存储引擎时，使用的 key 用于数据读写。
+  string key = 4;
+  // 用于标记输入输出数据的类型，
+  // 在数据传输过程中，数据块以字节数组的形式进行传输，dtype对数据块的格式进行描述，用于将字节数据转换为所需要的数据类型，详细说明，参考dtype枚举说明。
+  string dtype = 5;
+  // 用于标记输入输出数据的形状，shape的元素给出了相应维度上的数组尺寸的长度。
+  repeated int32 shape = 6;
+  // 默认为true,数据使用完成之后，是否清理。
+  bool delete = 7;
+}
+
+//定义算子输入、输出数据对象
+message DataValue {
+  //对算子输入输出一个参数的描述。
+  DataValueTag dataValueTag = 1;
+  //直接传值的数据，如果不采集直接传值的方式，则该值为空。
+  //该字段的处理方式上，是将要传输的数据块的转换为字节数组，再通过Base64编码后得到字符串形式的值，以便支持不同类型的RPC协议。
+  //数据块转换到字节数组的方式，由DataValueTag 中的dtype和shape确定。
+  bytes directValue = 2;
+}
+
+//算子服务请求对象
+message ExecuteRequest {
+  // 任务ID，用于约定对齐算子、算法上下文的任务编号
+  // 任务id2
+  string taskId = 1;
+  // [可选]子任务ID，用于算法对任务进行拆分或并行计算时使用，一般编码方式是taskId+分片后缀。
+  string subTaskId = 2;
+  // 控制面下发的Token，用于多方之间处理权限核验
+  string token = 3;
+  /*
+    [可选]同步或异步模式，默认为false，
+    false表示同步调用，同步情况下，算子服务需要在计算任务完成之后返回结果，上层算法阻塞等待。
+    true表示采用异步调用，异步调用情况下，算子服务在受理服务请求后，即可返回，算法层会根据outputMethod约定的存储位置异步获取结果。
+  */
+  bool asyncMode = 4;
+  // [可选]超时时间，单位为秒，默认为0表示不设置超时时间。算子服务如果超时，会强制结束任务，并返回错误。
+  int32 timeout = 5;
+  // 多方安全计算协议名称，用于约定算子实现的技术路线。
+  MpcProtocol mpcProtocol = 6;
+  // 用于描述算子计算操作，比如mvm表示矩阵向量乘法，matmul表示矩阵乘法；
+  string expression = 7;
+  // 参与方ID
+  // 列表，由发起方（或协调方）制定，该列表中个参与方的位置在一次计算任务重，是固定的，各参与方不允许对其调整，因为在计算过程中，算子需要根据该参与方序列保障安全算子协议的协同次序。
+  repeated string parties = 8;
+  // 本方的参与方ID
+  string localPartyId = 9;
+  // 结果获取方列表，由发起方（或协调方）进行设置。
+  repeated string resultParties = 10;
+  // 数据输入
+  repeated DataValue inputs = 11;
+  // 数据返回方式
+  repeated DataValueTag outputMethod = 12;
+  // [可选]有状态服务的执行阶段，缺省为无状态服务，可分阶段执行，可指定一个或多个阶段执行，定义为三个阶段，PREPAR（准备阶段）、CALCULATE（计算阶段）,RETRIEVE（恢复阶段）
+  string phases = 13;
+}
+
+//算子服务返回对象
+message ExecuteResponse {
+  /*
+    0 正常，否则错误码
+    错误码分段:
+    100-199表示系统层面的异常，比如算子服务未正常启动；
+    200-299表示依赖本地环境所产生的异常，如依赖的节点内存储系统发生异常；
+    300-399表示节点间的处理异常，包括节点间通信和节点间的系统异常；
+    400-999
+    表示内部的逻辑错误，比如参数错误产生的异常，数据格式错误、表达式不存在、算子异常终止等。
+  */
+  int32 code = 1;
+  //返回信息描述
+  string msg = 2;
+  //本次计算返回的结果，如果是异步调用模式下，则不立即返回此参数，可通过异步结果查询接口，获取此参数。
+  repeated DataValue result = 3;
+}
+
+//任务所需要的标识符对象
+message TaskTabRequest {
+  //任务ID，用于约定对齐算子、算法上下文的任务编号
+  string taskId = 1;
+  //[可选]子任务ID，用于算法对任务进行拆分或并行计算时使用，一般编码方式是taskId+分片后缀。
+  string subTaskId = 2;
+  //本方的参与方ID
+  string localPartyId = 3;
+}
+
+//算子超参定义对象
+message Hyperparameter {
+  //超参的形参编码
+  string paramKey = 1;
+  //参数的数据类型，限于基本数据类型。
+  string type = 2;
+  //超参说明
+  string comment = 3;
+  //参数实例
+  string paramDemo = 4;
+}
+
+//表达式信息
+message ExpressionInfo {
+  //协议名称编码
+  string protocolCode = 1;
+  //提供厂商名称编码
+  string providerCode = 2;
+  //协议版本号
+  string version = 3;
+  //表达式名称
+  string expression = 4;
+  //表达式超参
+  repeated Hyperparameter params = 5;
+}
+
+//算子表达式查询请求
+message ExpressionsRequest {}
+
+//算子表达式查询回复
+message ExpressionsResponse { repeated ExpressionInfo expressions = 1; }
+
+service Call {
+  //算子服务化接口
+  rpc execute(ExecuteRequest) returns (ExecuteResponse) {
+  }
+
+  // 异步化辅助查询接口
+  rpc query(TaskTabRequest) returns (ExecuteResponse) {
+  }
+
+  //异步化关闭接口
+  rpc kill(TaskTabRequest) returns (ExecuteResponse) {
+
+  }
+
+  //算子表达式查询请求
+  rpc expressions(ExpressionsRequest) returns (ExpressionsResponse) {
+
+  }
+}
