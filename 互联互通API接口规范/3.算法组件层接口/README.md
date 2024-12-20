@@ -8,15 +8,16 @@
 
 关于接口 API 内容如有问题可以联系我们，联系方式如下：
 
-| 姓名   | 单位             | 联系方式                                                  |
-| ------ | ---------------- | --------------------------------------------------------- |
-| 丁亚丹 | 中国银联         | dingyadan@unionpay.com       |
-| 刘瑞   | 上海浦东发展银行 | liur29@spdb.com.cn               |
-| 龚乐诚 | 上海浦东发展银行 | gonglc@spdb.com.cn            |
-| 靳新   | 洞见科技         | jinxin@insightone.cn          |
-| 赵永坤 | 洞见科技         | zhaoyongkun@insightone.cn|
-| 马煜翔 | 蓝象智联         | zichen.ma@trustbe.cn          |
-| 王超   | 蓝象智联         | congying.wang@trustbe.cn   |
+| 姓名   | 单位             | 联系方式                  |
+| ------ | ---------------- | ------------------------- |
+| 丁亚丹 | 中国银联         | dingyadan@unionpay.com    |
+| 谢袁源 | 中国银联         | xieyuanyuan@unionpay.com  |
+| 刘瑞   | 上海浦东发展银行 | liur29@spdb.com.cn        |
+| 龚乐诚 | 上海浦东发展银行 | gonglc@spdb.com.cn        |
+| 靳新   | 洞见科技         | jinxin@insightone.cn      |
+| 赵永坤 | 洞见科技         | zhaoyongkun@insightone.cn |
+| 马煜翔 | 蓝象智联         | zichen.ma@trustbe.cn      |
+| 王超   | 蓝象智联         | congying.wang@trustbe.cn  |
 
 ## 目录结构
 
@@ -25,7 +26,7 @@ InterOp
 ├─ LICENSE
 ├─ README.md              # 互联互通统一框架，贡献单位，版权声明等                  
 └─ 互联互通集成对接指引      # 存放对接指引，注意事项等相关内容
-└─ 互联互通API接口规范
+└─ 互联互通API接口文档
     ├─ README.md          # 子模块概述，Contributor联系方式等  
     └─ 算法组件层接口
         ├── README.md     # 模块简介，Contributor联系方式等                     
