@@ -7,7 +7,7 @@
 ## 目录结构
 
 ```
-互联互通API接口文档
+互联互通API接口规范
 ├─ README.md         # 概述，目录结构等   
 └─ （子模块名称）
    ├── README.md     # 模块简介，Contributor联系方式等                     

@@ -25,7 +25,7 @@ InterOp
 ├─ LICENSE
 ├─ README.md              # 互联互通统一框架，贡献单位，版权声明等                  
 └─ 互联互通集成对接指引      # 存放对接指引，注意事项等相关内容
-└─ 互联互通API接口文档
+└─ 互联互通API接口规范
     ├─ README.md          # 子模块概述，Contributor联系方式等  
     └─ 控制层接口
         ├── README.md     # 模块简介，Contributor联系方式等                     
