@@ -49,7 +49,7 @@
 **文档版本**
 
 ```
-v1.1.0
+v1.2.0
 ```
 
 ## 2 算法组件自描述文件
@@ -577,7 +577,7 @@ x-mprac-token-set：  required 多方资源访问控制的许可凭证，用于�
 
 调度层生成存储服务的配置信息，并通过环境变量 env 下发给算法组件层：
 
-1. S3 存储：s3://{host}:{port}?username={username}&password={password}
+1. S3 存储：s3://{host}:{port}?username={username}&password={password}&bucket={bucket_name}
 
 | **字段** | **说明**          |
 | -------- | ----------------- |
@@ -585,12 +585,13 @@ x-mprac-token-set：  required 多方资源访问控制的许可凭证，用于�
 | port     | s3 服务的服务端口 |
 | username | s3 服务的用户名   |
 | password | s3 服务的用户密码 |
+| bucket   | s3 服务的桶名称   |
 
 **示例：**
 
-system.storage=s3://192.168.1.1:9000?username=admin&password=123456
+system.storage=s3://192.168.1.1:9000?username=admin&password=123456&bucket=storage
 
-2. HDFS 存储：hdfs://{host}:{port}?username={username}&password={password}
+2. HDFS 存储：hdfs://{host}:{port}?username={username}&password={password}&dir={dir}
 
 | **字段** | **说明**            |
 | -------- | ------------------- |
@@ -601,7 +602,7 @@ system.storage=s3://192.168.1.1:9000?username=admin&password=123456
 
 **示例：**
 
-system.storage=hdfs://192.168.1.1:9000?username=admin&password=123456
+system.storage=hdfs://192.168.1.1:9000?username=admin&password=123456&dir=storage
 
 3. NFS 存储和本地存储：file://XXX//XXX
 
@@ -619,12 +620,12 @@ system.storage=file:///opt/iopy/
 
 数据集 meta：s3://{bucket_name}/{namespace}/{name}/metadata
 
-| **字段**    | **说明**                    |
-| ----------- | --------------------------- |
-| bucket_name | s3 桶名，目前固定为 storage |
-| namespace   | 数据集所属库名              |
-| name        | 数据集名称                  |
-| parition    | 数据集分区序号              |
+| **字段**    | **说明**       |
+| ----------- | -------------- |
+| bucket_name | s3 桶名        |
+| namespace   | 数据集所属库名 |
+| name        | 数据集名称     |
+| parition    | 数据集分区序号 |
 
 2. HDFS 存储：
 
@@ -632,12 +633,12 @@ system.storage=file:///opt/iopy/
 
 数据集 meta：hdfs://{dir}/{namespace}/{name}/metadata
 
-| **字段**  | **说明**                         |
-| --------- | -------------------------------- |
-| dir       | 存储一级目录，目前固定为 storage |
-| namespace | 数据集所属库名                   |
-| name      | 数据集名称                       |
-| parition  | 数据集分区序号                   |
+| **字段**  | **说明**       |
+| --------- | -------------- |
+| dir       | 存储一级目录   |
+| namespace | 数据集所属库名 |
+| name      | 数据集名称     |
+| parition  | 数据集分区序号 |
 
 3. NFS 存储和本地存储：
 
