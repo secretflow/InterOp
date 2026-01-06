@@ -60,7 +60,7 @@
 **文档版本**
 
 ```
-v1.1.0
+v1.2.0
 ```
 
 ## 2 通用报文头规范及公共出参
@@ -381,6 +381,7 @@ x-mprac-token-set：多方资源访问控制的许可凭证
 | ⇥ ⇥ description     | string        |        |        | 数据集描述                                                   |
 | ⇥ ⇥ name            | string        |        | true   | 数据集名称                                                   |
 | ⇥ ⇥ owner           | string        |        | true   | 数据属主（机构 id）                                          |
+| ⇥ ⇥ join_columns | string | |  | 求交任务匹配键 |
 | ⇥ ⇥ column_metas    | array<object> |        |        | 列元数据，与字段排序保持一致。列表查询时可选，明细查询时必选 |
 | ⇥ ⇥ ⇥ name         | string        |        | true   | 字段名/特征名                                                |
 | ⇥ ⇥ ⇥ data_type    | string        |        | true   | 字段类型，枚举值：如 varchar、int、double（参考 SQL）        |
@@ -424,6 +425,7 @@ x-mprac-token-set：多方资源访问控制的许可凭证
 | ⇥ description     | string        |        |        | 数据集描述                                                   |
 | ⇥ name            | string        |        | true   | 数据集名称                                                   |
 | ⇥ owner           | string        |        | true   | 数据属主（机构 id）                                          |
+| ⇥ label_columns | string | |  | 字段列 |
 | ⇥ ⇥ column_metas | array<object> |        | true   | 列元数据，与字段排序保持一致。列表查询时可选，明细查询时必选 |
 | ⇥ ⇥ name         | string        |        | true   | 字段名/特征名                                                |
 | ⇥ ⇥ data_type    | string        |        | true   | 字段类型，枚举值：如 varchar、int、double（参考 SQL）        |

@@ -15,6 +15,11 @@
       - [3.2.3 快速获取数据接口](#323-快速获取数据接口)
       - [3.2.4 会话释放接口](#324-会话释放接口)
   - [4 传输编程接口（可选）](#4-传输编程接口可选)
+  - [5 传输层序列化规则](#5-传输层序列化规则)
+    - [5.1 南北向接口序列化](#51-南北向接口序列化)
+    - [5.2 东西向接口序列化](#52-东西向接口序列化)
+      - [5.2.1 透传模式](#521-透传模式)
+      - [[5.2.2 封装模式]](#522-封装模式)
 
 
 ## 1 整体框架
@@ -28,7 +33,7 @@
 **文档版本**
 
 ```
-v1.1.0
+v1.2.0
 ```
 
 ## 2 节点间通信接口
@@ -303,3 +308,151 @@ c) 会话释放：释放会话资源，可选。
 ## 4 传输编程接口（可选）
 
 该接口为可选接口，主要涉及算法调用传输 sdk 的具体接口实现，详细内容可以参见[传输相关参考实现](./examples/传输相关参考实现.md)
+
+## 5 传输层序列化规则
+
+传输层序列化分为南北向以及东西向接口，HTTP1.1、GRPC协议实现其一即可
+
+### 5.1 南北向接口序列化
+
+算法模块与传输模块南北向接口集成需按照如下序列化方案
+
+- HTTP序列化
+
+  HTTP协议序列化/反序列化方案可通过头字段Content-Type进行设置，支持列表如下
+
+  > 注：使用protobuf序列化时protobuf格式参考南北向GRPC协议格式
+
+|          Content-Type          | 序列化方式 |
+| :----------------------------: | :--------: |
+|       application/json*        |    json    |
+|    application/x-protobuf*     |  protobuf  |
+|   application/xml、text/xml    |    xml     |
+| application/x-msgpack、msgpack |  msgpack   |
+|       application/x-yaml       |    yaml    |
+|        application/toml        |    toml    |
+|     application/form-data      |    form    |
+
+> *必选
+
+- GRPC序列化
+
+  GRPC协议使用protobuf进行序列化/反序列化，protobuf格式如下
+
+```protobuf
+syntax = "proto3";
+
+package org.ppc.ptp;
+option go_package = "github.com/be-io/mesh/ptp";
+option java_package = "io.bfia.ptp";
+
+// PTP Private transfer protocol
+// 通用报头名称编码，4层无Header以二进制填充到报头，7层以Header传输
+// x-ptp-tech-provider-code:    required 厂商编码
+// x-ptp-trace-id:              required 链路追踪ID
+// x-ptp-token                  required 认证令牌
+// x-ptp-session-id             required 通信会话号，全网唯一
+// x-ptp-target-node-id         required 接收端节点编号，全网唯一
+// x-ptp-target-inst-id         optional 接收端机构编号，全网唯一
+
+message PeekInbound {
+  string topic = 1;                   // optional 会话主题，相同信道具有唯一性，用于同一信道的传输隔离
+}
+
+message PopInbound {
+  string topic = 1;                   // optional 会话主题，相同信道具有唯一性，用于同一信道的传输隔离
+  int32 timeout = 2;                  // optional 阻塞超时时间，默认120s
+}
+
+message PushInbound{
+  string topic = 1;                   // optional 会话主题，相同信道具有唯一性，用于同一信道的传输隔离
+  bytes payload = 2;                  // 二进制报文
+  map<string, string> metadata = 3;   // optional 保留参数，用于扩展性
+}
+
+message ReleaseInbound {
+  string topic = 1;                   // optional 会话主题，相同信道具有唯一性，用于同一信道的传输隔离
+  int32 timeout = 2;                  // optional 阻塞超时时间，默认120s
+}
+
+message TransportOutbound {
+  map<string, string>  metadata = 1;  // 可选，预留扩展，Dict，序列化协议由通信层统一实现
+  bytes payload = 2;                  // 二进制报文
+  string code = 3;                    // 状态码
+  string message = 4;                 // 状态说明
+}
+
+service PrivateTransferTransport {
+  rpc peek (PeekInbound) returns (TransportOutbound);
+  rpc pop (PopInbound) returns (TransportOutbound);
+  rpc push (PushInbound) returns (TransportOutbound);
+  rpc release (ReleaseInbound) returns (TransportOutbound);
+}
+```
+
+### 5.2 东西向接口序列化
+
+传输模块东西向接口序列化有透传模式和封装模式两种方式，通过头字段x-ptp-version进行限定
+
+#### 5.2.1 透传模式
+
+头字段设置x-ptp-version=1时东西向接口为透传模式，传输模块直接透传南北向接口收到的消息给合作方东西向接口，不做任何额外处理
+
+#### 5.2.2 封装模式
+
+头字段x-ptp-version不为1或者未包含该字段时，东西向接口为封装模式，传输模块对南北向接口接收到的消息进行二次序列化后转发给合作方东西向接口，该模式可兼容v1.1.0及之前版本标准的传输模块
+
++ HTTP序列化
+
+  HTTP序列化/反序列化方案与南北向HTTP序列化方式保持一致
+
+  > 注：使用protobuf序列化时protobuf格式参考东西向GRPC协议protobuf格式
+
++ GRPC序列化
+
+  GRPC协议使用protobuf进行序列化/反序列化，protobuf格式如下
+
+```protobuf
+syntax = "proto3";
+
+package org.ppc.ptp;
+option go_package = "github.com/be-io/mesh/ptp";
+option java_package = "io.bfia.ptp";
+
+// PTP Private transfer protocol
+// 通用报头名称编码，4层无Header以二进制填充到报头，7层以Header传输
+// x-ptp-version             required 协议版本
+// x-ptp-tech-provider-code  required 厂商编码
+// x-ptp-trace-id            required 链路追踪ID
+// x-ptp-token               required 认证令牌
+// x-ptp-uri                 required 互联互通资源定位符，为跨节点实际请求的资源路径，用于兼容多协议
+// x-ptp-source-node-id      required 发送端节点编号
+// x-ptp-target-node-id      required 接收端节点编号
+// x-ptp-source-inst-id      required 发送端机构编号
+// x-ptp-target-inst-id      required 接收端机构编号
+// x-ptp-session-id          required 通信会话号，全网唯一
+
+// 通信传输层输入报文编码
+message Inbound {
+  map<string, string>  metadata = 1;   // 报头，可选，预留扩展，Dict，序列化协议由通信层统一实现
+  bytes payload = 2;                   // 报文，上层通信内容承载，序列化协议由上层基于SPI可插拔
+}
+
+// 通信传输层输出报文编码
+message Outbound {
+  map<string, string>  metadata = 1;  // 报头，可选，预留扩展，Dict，序列化协议由通信层统一实现
+  bytes payload = 2;                  // 报文，上层通信内容承载，序列化协议由上层基于SPI可插拔
+  string code = 3;                    // 状态码
+  string message = 4;                 // 状态说明
+}
+
+// 互联互通如果使用异步传输协议作为标准参考，Header会复用metadata传输互联互通协议报头，且metadata中会传输异步场景下的消息相关属性
+// 互联互通如果使用其他协议作为参考标准，Header会复用metadata传输互联互通协议报头
+// 互联互通如果使用GRPC作为参考标准，Header会复用HTTP2的报头传输互联互通协议报头
+
+service PrivateTransferProtocol {
+  rpc transport (stream Inbound) returns (stream Outbound);
+  rpc invoke (Inbound) returns (Outbound);
+}
+```
+
